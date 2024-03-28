@@ -24,22 +24,22 @@ public class ClientRestController {
     private final ClientMapper mapper;
 
     @GetMapping("/{id}")
-    public ClientResponseDto getClient(@PathVariable long id) {
-        return mapper.map(clientService.getClientById(id));
+    public ClientResponseDto getClient(@PathVariable Long id) {
+        return mapper.toClientResponseDto(clientService.getClientById(id));
     }
 
     @PostMapping
-    public ClientResponseDto createClient(@RequestBody ClientRequestDto clientRequestDTO) {
-        return mapper.map(clientService.createClient(clientRequestDTO));
+    public ClientResponseDto createClient(@RequestBody ClientRequestDto clientRequestDto) {
+        return mapper.toClientResponseDto(clientService.createClient(clientRequestDto));
     }
 
     @DeleteMapping("/{id}")
-    public void delete(@PathVariable long id) {
+    public void deleteClient(@PathVariable Long id) {
         clientService.deleteClient(id);
     }
 
     @GetMapping
     public List<ClientResponseDto> getAllClients() {
-        return mapper.mapAsList(clientService.getAllClients());
+        return mapper.toClientsResponseDto(clientService.getAllClients());
     }
 }

@@ -13,16 +13,14 @@ import pl.gr.veterinaryapp.exception.ResourceNotFoundException;
 @ControllerAdvice
 public class VetExceptionHandler extends ResponseEntityExceptionHandler {
 
-    @ExceptionHandler(value
-            = IncorrectDataException.class)
+    @ExceptionHandler(value = IncorrectDataException.class)
     protected ResponseEntity<Object> incorrectData(
             IncorrectDataException ex, WebRequest request) {
         return handleExceptionInternal(ex, ex.getMessage(),
                 new HttpHeaders(), HttpStatus.BAD_REQUEST, request);
     }
 
-    @ExceptionHandler(value
-            = ResourceNotFoundException.class)
+    @ExceptionHandler(value = ResourceNotFoundException.class)
     protected ResponseEntity<Object> resourceNotFound(
             ResourceNotFoundException ex, WebRequest request) {
         return handleExceptionInternal(ex, ex.getMessage(),

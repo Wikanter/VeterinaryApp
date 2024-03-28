@@ -24,21 +24,21 @@ public class UserController {
 
     @GetMapping
     public List<UserDto> getAllUsers() {
-        return mapper.mapAsList(userService.getAllUsers());
+        return mapper.toUsersDto(userService.getAllUsers());
     }
 
     @PostMapping
     public UserDto createUser(@RequestBody UserDto user) {
-        return mapper.map(userService.createUser(user));
+        return mapper.toUserDto(userService.createUser(user));
     }
 
     @DeleteMapping("/{id}")
-    public void deleteUser(@PathVariable long id) {
+    public void deleteUser(@PathVariable Long id) {
         userService.deleteUser(id);
     }
 
     @GetMapping("/{id}")
-    public UserDto getUser(@PathVariable long id) {
-        return mapper.map(userService.getUser(id));
+    public UserDto getUser(@PathVariable Long id) {
+        return mapper.toUserDto(userService.getUser(id));
     }
 }

@@ -23,7 +23,6 @@ public class Client {
     private String name;
     @NotNull
     private String surname;
-
     @OneToOne
     @JoinColumn(name = "user_id", referencedColumnName = "id")
     private VetAppUser user;

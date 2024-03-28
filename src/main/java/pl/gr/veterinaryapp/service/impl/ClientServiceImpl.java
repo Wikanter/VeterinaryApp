@@ -24,7 +24,7 @@ public class ClientServiceImpl implements ClientService {
     private final UserRepository userRepository;
 
     @Override
-    public Client getClientById(long id) {
+    public Client getClientById(Long id) {
         System.out.println("XXX");
         return clientRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Wrong id."));
@@ -45,7 +45,7 @@ public class ClientServiceImpl implements ClientService {
         VetAppUser user = userRepository.findByUsername(clientRequestDTO.getUsername())
                 .orElse(null);
 
-        Client client = mapper.map(clientRequestDTO);
+        Client client = mapper.toClientResponseDto(clientRequestDTO);
         client.setUser(user);
 
         return clientRepository.save(client);
@@ -53,7 +53,7 @@ public class ClientServiceImpl implements ClientService {
 
     @Transactional
     @Override
-    public void deleteClient(long id) {
+    public void deleteClient(Long id) {
         Client result = clientRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Wrong id."));
         clientRepository.delete(result);
