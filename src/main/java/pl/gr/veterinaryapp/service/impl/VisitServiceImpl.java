@@ -116,7 +116,7 @@ public class VisitServiceImpl implements VisitService {
             throw new IncorrectDataException("The time to your visit is too short.");
         }
 
-        if (visitRepository.findAllOverlapping(vetId, startDateTime, startDateTime.plus(duration)).size() != 0) {
+        if (!visitRepository.findAllOverlapping(vetId, startDateTime, startDateTime.plus(duration)).isEmpty()) {
             throw new IncorrectDataException("This date is not available.");
         }
     }
