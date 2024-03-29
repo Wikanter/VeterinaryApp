@@ -23,10 +23,7 @@ import pl.gr.veterinaryapp.model.dto.VisitResponseDto;
 import pl.gr.veterinaryapp.service.VisitService;
 
 import java.time.OffsetDateTime;
-import java.util.Collections;
-import java.util.List;
-import java.util.Objects;
-import java.util.Set;
+import java.util.*;
 import java.util.stream.Collectors;
 
 import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.linkTo;
@@ -57,24 +54,16 @@ public class VisitRestController {
             @RequestParam @DateTimeFormat(pattern = "yyyy-MM-dd'T'HH:mm:ssXXX") OffsetDateTime startDateTime,
             @RequestParam @DateTimeFormat(pattern = "yyyy-MM-dd'T'HH:mm:ssXXX") OffsetDateTime endDateTime,
             @RequestParam(required = false) List<Long> vetIds) {
-        Set<Long> vetIdsSet;
-        if (vetIds == null) {
-            vetIdsSet = Collections.emptySet();
-        } else {
-            vetIdsSet = vetIds
-                    .stream()
-                    .filter(Objects::nonNull)
-                    .collect(Collectors.toSet());
-        }
+        Set<Long> vetIdsSet = Optional.ofNullable(vetIds)
+                .map(ids -> ids.stream().filter(Objects::nonNull).collect(Collectors.toSet()))
+                .orElse(Collections.emptySet());
 
         var availableVisits = visitService
                 .getAvailableVisits(startDateTime, endDateTime, vetIdsSet);
 
-        for (var availableVisit : availableVisits) {
-            for (var vetId : availableVisit.getVetIds()) {
-                availableVisit.add(createVetLink(vetId));
-            }
-        }
+        availableVisits.forEach(availableVisit -> availableVisit.getVetIds()
+                .forEach(vetId -> availableVisit.add(createVetLink(vetId))));
+
         return availableVisits;
     }
 

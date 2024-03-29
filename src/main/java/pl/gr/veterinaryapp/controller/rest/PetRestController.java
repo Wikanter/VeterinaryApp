@@ -1,6 +1,9 @@
 package pl.gr.veterinaryapp.controller.rest;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.hateoas.Link;
 import org.springframework.hateoas.MediaTypes;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
@@ -25,18 +28,22 @@ import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.methodOn;
 @RequiredArgsConstructor
 @RequestMapping("api/pets")
 @RestController
+@Slf4j
 public class PetRestController {
 
     private final PetService petService;
     private final PetMapper mapper;
+    private final ObjectMapper objectMapper;
 
     @DeleteMapping(path = "/{id}")
     public void deletePet(@PathVariable Long id) {
+        log.info("received request on DELETE api/pets/{}", id);
         petService.deletePet(id);
     }
 
     @GetMapping(path = "/{id}", produces = MediaTypes.HAL_JSON_VALUE)
     public PetResponseDto getPet(@AuthenticationPrincipal User user, @PathVariable Long id) {
+        log.info("received request on GET api/pets/{}", id);
         var pet = mapper.toPetResponseDto(petService.getPetById(user, id));
         addLinks(pet);
         return pet;
@@ -56,7 +63,8 @@ public class PetRestController {
     }
 
     @PostMapping(produces = MediaTypes.HAL_JSON_VALUE)
-    public PetResponseDto createPet(@AuthenticationPrincipal User user, @RequestBody PetRequestDto petRequestDto) {
+    public PetResponseDto createPet(@AuthenticationPrincipal User user, @RequestBody PetRequestDto petRequestDto) throws JsonProcessingException {
+        log.info("received request on POST api/pets with body: {}", objectMapper.writeValueAsString(petRequestDto));
         var pet = mapper.toPetResponseDto(petService.createPet(user, petRequestDto));
         addLinks(pet);
         return pet;
