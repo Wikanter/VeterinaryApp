@@ -1,6 +1,9 @@
 package pl.gr.veterinaryapp.controller.rest;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -17,12 +20,15 @@ import static pl.gr.veterinaryapp.common.TokenConstants.AUTH_HEADER_NAME;
 @RequiredArgsConstructor
 @CrossOrigin(origins = "*", maxAge = 3600)
 @RestController
+@Slf4j
 public class AuthenticationController {
 
     private final TokenServiceImpl tokenService;
+    private final ObjectMapper objectMapper;
 
     @PostMapping("/login")
-    public AuthToken register(@RequestBody LoginUser loginUser) throws AuthenticationException {
+    public AuthToken register(@RequestBody LoginUser loginUser) throws AuthenticationException, JsonProcessingException {
+        log.info("received request on POST /login with body: {}", objectMapper.writeValueAsString(loginUser));
         return tokenService.register(loginUser);
     }
 

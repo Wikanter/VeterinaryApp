@@ -27,9 +27,7 @@ import static pl.gr.veterinaryapp.common.TokenConstants.TOKEN_PREFIX;
 public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
     private final UserDetailsService userDetailsService;
-
     private final BlockedTokenRepository blockedTokenRepository;
-
     private final TokenProvider jwtTokenUtil;
 
     @Override
@@ -67,7 +65,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
                 SecurityContextHolder.getContext().setAuthentication(authentication);
             }
         }
-
+        
         chain.doFilter(req, res);
     }
 }

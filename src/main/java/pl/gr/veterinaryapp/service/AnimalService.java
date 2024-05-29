@@ -7,11 +7,11 @@ import java.util.List;
 
 public interface AnimalService {
 
-    Animal getAnimalById(long id);
+    Animal getAnimalById(Long id);
 
     Animal createAnimal(AnimalRequestDto animalRequestDTO);
 
-    void deleteAnimal(long id);
+    void deleteAnimal(Long id);
 
     List<Animal> getAllAnimals();
 }

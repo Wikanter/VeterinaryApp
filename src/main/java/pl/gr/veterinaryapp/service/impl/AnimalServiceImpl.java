@@ -21,7 +21,7 @@ public class AnimalServiceImpl implements AnimalService {
     private final AnimalMapper mapper;
 
     @Override
-    public Animal getAnimalById(long id) {
+    public Animal getAnimalById(Long id) {
         return animalRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Wrong id."));
     }
@@ -33,13 +33,12 @@ public class AnimalServiceImpl implements AnimalService {
         if (animal.isPresent()) {
             throw new IncorrectDataException("Species exists.");
         }
-
-        return animalRepository.save(mapper.map(animalRequestDto));
+        return animalRepository.save(mapper.toAnimal(animalRequestDto));
     }
 
     @Transactional
     @Override
-    public void deleteAnimal(long id) {
+    public void deleteAnimal(Long id) {
         Animal animal = animalRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Wrong id."));
         animalRepository.delete(animal);

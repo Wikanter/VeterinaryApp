@@ -23,10 +23,7 @@ import pl.gr.veterinaryapp.model.dto.VisitResponseDto;
 import pl.gr.veterinaryapp.service.VisitService;
 
 import java.time.OffsetDateTime;
-import java.util.Collections;
-import java.util.List;
-import java.util.Objects;
-import java.util.Set;
+import java.util.*;
 import java.util.stream.Collectors;
 
 import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.linkTo;
@@ -41,13 +38,13 @@ public class VisitRestController {
     private final VisitMapper mapper;
 
     @DeleteMapping(path = "/{id}", produces = MediaTypes.HAL_JSON_VALUE)
-    public void delete(@PathVariable long id) {
+    public void delete(@PathVariable Long id) {
         visitService.deleteVisit(id);
     }
 
     @GetMapping(path = "/{id}", produces = MediaTypes.HAL_JSON_VALUE)
-    public VisitResponseDto getVisit(@AuthenticationPrincipal User user, @PathVariable long id) {
-        var visit = mapper.map(visitService.getVisitById(user, id));
+    public VisitResponseDto getVisit(@AuthenticationPrincipal User user, @PathVariable Long id) {
+        var visit = mapper.toVisitResponseDto(visitService.getVisitById(user, id));
         addLinks(visit);
         return visit;
     }
@@ -57,30 +54,22 @@ public class VisitRestController {
             @RequestParam @DateTimeFormat(pattern = "yyyy-MM-dd'T'HH:mm:ssXXX") OffsetDateTime startDateTime,
             @RequestParam @DateTimeFormat(pattern = "yyyy-MM-dd'T'HH:mm:ssXXX") OffsetDateTime endDateTime,
             @RequestParam(required = false) List<Long> vetIds) {
-        Set<Long> vetIdsSet;
-        if (vetIds == null) {
-            vetIdsSet = Collections.emptySet();
-        } else {
-            vetIdsSet = vetIds
-                    .stream()
-                    .filter(Objects::nonNull)
-                    .collect(Collectors.toSet());
-        }
+        Set<Long> vetIdsSet = Optional.ofNullable(vetIds)
+                .map(ids -> ids.stream().filter(Objects::nonNull).collect(Collectors.toSet()))
+                .orElse(Collections.emptySet());
 
         var availableVisits = visitService
                 .getAvailableVisits(startDateTime, endDateTime, vetIdsSet);
 
-        for (var availableVisit : availableVisits) {
-            for (var vetId : availableVisit.getVetIds()) {
-                availableVisit.add(createVetLink(vetId));
-            }
-        }
+        availableVisits.forEach(availableVisit -> availableVisit.getVetIds()
+                .forEach(vetId -> availableVisit.add(createVetLink(vetId))));
+
         return availableVisits;
     }
 
     @GetMapping(produces = MediaTypes.HAL_JSON_VALUE)
     public List<VisitResponseDto> getAllVisits(@AuthenticationPrincipal User user) {
-        var visits = mapper.mapAsList(visitService.getAllVisits(user));
+        var visits = mapper.toVisitsResponseDto(visitService.getAllVisits(user));
 
         for (var visit : visits) {
             addLinks(visit);
@@ -88,32 +77,31 @@ public class VisitRestController {
                     .withSelfRel();
             visit.add(link);
         }
-
         return visits;
     }
 
     @PostMapping(produces = MediaTypes.HAL_JSON_VALUE)
     public VisitResponseDto createVisit(@AuthenticationPrincipal User user,
                                         @RequestBody VisitRequestDto visitRequestDto) {
-        var visit = mapper.map(visitService.createVisit(user, visitRequestDto));
+        var visit = mapper.toVisitResponseDto(visitService.createVisit(user, visitRequestDto));
         addLinks(visit);
         return visit;
     }
 
     @PatchMapping(produces = MediaTypes.HAL_JSON_VALUE)
     public VisitResponseDto finalizeVisit(@RequestBody VisitEditDto visitEditDto) {
-        var visit = mapper.map(visitService.finalizeVisit(visitEditDto));
+        var visit = mapper.toVisitResponseDto(visitService.finalizeVisit(visitEditDto));
         addLinks(visit);
         return visit;
     }
 
-    public Link createVetLink(long id) {
+    public Link createVetLink(Long id) {
         return linkTo(VetRestController.class)
                 .slash(id)
                 .withRel("vet");
     }
 
-    public Link createPetLink(long id) {
+    public Link createPetLink(Long id) {
         return linkTo(PetRestController.class)
                 .slash(id)
                 .withRel("pet");
